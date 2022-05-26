@@ -23,7 +23,7 @@ class Collect():
         self.dir_source = dir_source
         self.review_paths = None
         self.out_dir = dir_dest
-        self.out_file = r'test.txt'
+        self.out_file = r'reviews.txt'
         self.num_each = count
 
         self.get_paths()
@@ -95,8 +95,10 @@ class Collect():
         name = ''
         if self.num_each < 0:
             name = 'all_' + self.out_file
-        else:
+        elif self.num_each < 1000:
             name = str(self.num_each) + '_' + self.out_file
+        else:
+            name = str(self.num_each/1000) + 'K_' + self.out_file
         path = self.out_dir + name
         with open(path, 'w', encoding='utf-8') as file:
             columns =  'rating,review_text\n'
