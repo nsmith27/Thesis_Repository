@@ -158,7 +158,7 @@ class Preprocess():
 
         if new_col not in self.df:
             self.df[new_col] = ''
-            
+
         num_cpu = mp.cpu_count()
         size = len(self.df.index)
         chunk_size = math.ceil(chunk_size)
@@ -195,7 +195,7 @@ class Preprocess():
             text = ' '.join(text) if len(text) > 0 else L[i]
             out.append(text)
         t2 = time.time()
-        print_log(f'\tFunction clean_nltk executed in {(t2-t1):.4f}s')
+        print_log(f'\tFunction \'clean_nltk\' executed in {(t2-t1):.4f}s')
         return out
     
     def clean_spacy(self, L):
@@ -213,7 +213,7 @@ class Preprocess():
             text = ' '.join(text) if len(text) > 0 else L[i]
             out.append(text)
         t2 = time.time()
-        print_log(f'\n\tFunction clean_spacy executed in {(t2-t1):.4f}s', '')
+        print_log(f'\n\tFunction \'clean_spacy\' executed in {(t2-t1):.4f}s', '')
         return out
 
     def replace_web_reference(self, text):
@@ -320,7 +320,7 @@ class Preprocess():
             score= (score + 1)/2
             out.append(score)
         t2 = time.time()
-        print_log(f'\tFunction get_sentiment executed in {(t2-t1):.4f}s')
+        print_log(f'\tFunction \'get_sentiment\' executed in {(t2-t1):.4f}s')
         return out
 
     @timer_func
@@ -394,7 +394,7 @@ class Preprocess():
                 temp.append(row_emtns[e])
             out.append(temp)
         t2 = time.time()
-        print_log(f'\tFunction get_emotion executed in {(t2-t1):.4f}s')
+        print_log(f'\tFunction \'get_emotion\' executed in {(t2-t1):.4f}s')
         return out
 
 #############################################################################################################################################

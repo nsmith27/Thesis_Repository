@@ -61,14 +61,10 @@
 
 import numpy as np
 
-a = [1,2]
-b = []
-c = ['a','b']
+# a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+# c = 2
+# b = [a[i:i+c] for i in range(0, len(a), c)]
 
-b.insert(0,a)
-b.insert(-1,c)
-print(b)
-
-x = np.transpose(b).tolist()
-print(x)
-
+b = {'a':[1,2,3,4], 'b':[5,6,7], 'c':[8,9,10]}
+for i in b.keys():
+    print(i)
