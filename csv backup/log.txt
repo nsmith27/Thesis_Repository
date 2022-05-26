@@ -907,3 +907,14 @@ Function 'wrap_sentiment' running...	Function 'wrap_sentiment' executed in 00:00
 Function 'wrap_sentiment' running...	Function 'wrap_sentiment' executed in 00:00 (min:sec)
 Function 'wrap_sentiment' running...	Function 'wrap_sentiment' executed in 00:00 (min:sec)
 Function 'wrap_emotion' running...	Function 'wrap_emotion' executed in 00:00 (min:sec)
+
+
+================================================================================================================================================================
+May 26, 2022 at 13:30
+================================================================================================================================================================
+Function 'wrap_clean' running...	Function 'wrap_clean' executed in 00:00 (min:sec)
+Function 'wrap_clean' running...	Function 'wrap_clean' executed in 00:00 (min:sec)
+Function 'wrap_sentiment' running...	Function 'wrap_sentiment' executed in 00:00 (min:sec)
+Function 'wrap_sentiment' running...	Function 'wrap_sentiment' executed in 00:00 (min:sec)
+Function 'wrap_sentiment' running...	Function 'wrap_sentiment' executed in 00:00 (min:sec)
+Function 'wrap_emotion' running...	Function 'wrap_emotion' executed in 00:00 (min:sec)

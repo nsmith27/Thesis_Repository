@@ -45,7 +45,7 @@ def timer_func(func):
         return result
     return wrap_func
 
-print_log_path = 'log.txt'
+print_log_path = './output_2/log.txt'
 def create_log(start_time):
     with open(print_log_path, 'a+') as file:
         border = '\n' + '='*160 + '\n'
@@ -72,11 +72,14 @@ class Preprocess():
     #    sentiment (float), sentiment_nltk (float), sentiment_spacy (float), 
     #    angry (float), fear (float), happy (float), sad (float), surpise (float)}
     
-    def __init__(self, path_source=r'450K_prep.csv', path_dest=r'450K_prep.csv'):
+    def __init__(self, path_source=r'./output_2/450K_prep.csv', path_dest=r'./output_2/450K_prep.csv'):
         self.analyzer = SentimentIntensityAnalyzer()
         self.nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
         self.start_time = datetime.now().strftime("%H:%M")
         self.t0_class = time.time()
+
+        self.default_path_source = r'./output_1/450K_reviews.csv'
+        self.default_path_dest = r'./output_2/450K_prep.csv'
         self.path_source = path_source
         self.path_dest = path_dest
         self.df = None
@@ -99,11 +102,15 @@ class Preprocess():
     #############################################################################################################################################
     def get_df(self):
         if not os.path.exists(self.path_source):
-            self.df = pd.read_csv(r'450K_reviews.csv', index_col=0)
+            self.df = pd.read_csv(self.default_path_source, index_col=0)
         elif os.path.exists(self.path_dest):
             today = date.today()
             today = today.strftime("%b_%d_")
-            shutil.copyfile(self.path_dest, today + self.path_dest)
+            full_path = self.path_dest.split('/')
+            directory = full_path[:-1]
+            file = '/' + today + full_path[-1]
+            full_path = '/'.join(directory)+file
+            shutil.copyfile(self.path_dest, full_path)
             self.df = pd.read_csv(self.path_source, index_col=0)
         else:
             self.df = pd.read_csv(self.path_source, index_col=0)
@@ -119,7 +126,8 @@ class Preprocess():
                 break
         return i, kept
 
-    def save_df(self, path, include_time=False):
+    def save_df(self, include_time=False):
+        path = self.path_dest
         slash = '/'
         if 'Windows' in platform.platform() :
             slash = '\\'
@@ -169,7 +177,7 @@ class Preprocess():
                 result.insert(0, group_begin)
                 result.insert(len(result), group_end)
                 self.df[new_col] = [item for sublist in result for item in sublist]
-            self.save_df(self.path_dest)
+            self.save_df(True)
         return 
 
     def clean_nltk(self, L):
@@ -299,7 +307,7 @@ class Preprocess():
                 result.insert(0, group_begin)
                 result.insert(len(result), group_end)
                 self.df[write_col] = [item for sublist in result for item in sublist]
-            self.save_df(self.path_dest, True)
+            self.save_df(True)
         return 
 
     def get_sentiment(self, L):
@@ -348,7 +356,7 @@ class Preprocess():
                 r.insert(0, b)
                 r.insert(len(r), e)
                 self.df[self.emotions[i]] = [item for sublist in r for item in sublist]
-            self.save_df(self.path_dest,True)
+            self.save_df(True)
         return 
 
     def emotion_group_end(self, depth):
@@ -394,8 +402,9 @@ class Preprocess():
 #############################################################################################################################################
 if __name__ == '__main__':
     mp.freeze_support()
-    # Preprocess(path_source=r'450K_reviews.csv', path_dest=r'450K_prep.csv')
-    Preprocess(path_source=r'450K_prep.csv', path_dest=r'450K_prep.csv')
+    # Preprocess(path_source=r'./output_1/450K_prep.csv', path_dest=r'./output_2/450K_prep.csv')
+    Preprocess(path_source=r'./output_2/450K_prep.csv', path_dest=r'./output_2/450K_prep.csv')
+    
 
 # get data from csv 
     # path_450K = r'450K_reviews.csv'
