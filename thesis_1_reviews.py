@@ -23,7 +23,7 @@ class Collect():
         self.dir_source = dir_source
         self.review_paths = None
         self.out_dir = dir_dest
-        self.out_file = r'reviews.txt'
+        self.out_file = r'reviews.csv'
         self.num_each = count
 
         self.get_paths()
@@ -98,7 +98,7 @@ class Collect():
         elif self.num_each < 1000:
             name = str(self.num_each) + '_' + self.out_file
         else:
-            name = str(self.num_each/1000) + 'K_' + self.out_file
+            name = str(int(self.num_each/200)) + 'K_' + self.out_file
         path = self.out_dir + name
         with open(path, 'w', encoding='utf-8') as file:
             columns =  'rating,review_text\n'
@@ -117,5 +117,5 @@ class Collect():
 ############################################################################################################################################
 if __name__ == '__main__':
     mp.freeze_support()
-    Collect(count=90_000)
+    Collect(count=100_000)
 
