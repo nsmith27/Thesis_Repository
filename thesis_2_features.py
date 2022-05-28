@@ -36,26 +36,27 @@ def timer_func(func):
     # This function shows the execution time of 
     # the function object passed
     def wrap_func(*args, **kwargs):
-        print_log(f'Function {func.__name__!r} running...', '\t')
+        print_log(f'\nFunction {func.__name__!r} running...', '\t')
         t1 = time.time()
         result = func(*args, **kwargs)
         t2 = time.time()
-        convert = time.strftime("%M:%S", time.gmtime(t2-t1))
-        print_log(f'Function {func.__name__!r} executed in {convert} (min:sec)')
+        convert = time.strftime("%H:%M:%S", time.gmtime(t2-t1))
+        print_log(f'Function {func.__name__!r} executed in {convert}')
         return result
     return wrap_func
 
 print_log_path = './output_2/log.txt'
-def create_log(start_time):
+def create_log(start_time, source_file, dest_file):
     with open(print_log_path, 'a+') as file:
-        border = '\n' + '='*160 + '\n'
+        border = '\n' + '='*160
         log_date = date.today().strftime("%B %d, %Y")
-        log_date = border + (log_date + ' at ' + start_time) + border
-        file.write(log_date)
+        log_date = border + ('\n' + log_date + ' at ' + start_time) 
+        source = '\tSource: ' + source_file
+        dest = '\tDestination: ' + dest_file + border
+        file.write(log_date + source + dest)
     return
-def print_log(S, ending='\n'):
+def print_log(S, ending=''):
     print(S, end=ending)
-  
     S = S + ending
     with open(print_log_path, 'a+') as file:
         file.write(S)
@@ -72,7 +73,7 @@ class Preprocess():
     #    sentiment (float), sentiment_nltk (float), sentiment_spacy (float), 
     #    angry (float), fear (float), happy (float), sad (float), surpise (float)}
     
-    def __init__(self, path_source=r'./output_2/450K_prep.csv', path_dest=r'./output_2/450K_prep.csv'):
+    def __init__(self, path_source=r'./output_2/450K_prep.csv', dir_dest=r'./output_2/'):
         self.analyzer = SentimentIntensityAnalyzer()
         self.nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
         self.start_time = datetime.now().strftime("%H:%M")
@@ -81,16 +82,16 @@ class Preprocess():
         self.default_path_source = r'./output_1/450K_reviews.csv'
         self.default_path_dest = r'./output_2/450K_prep.csv'
         self.path_source = path_source
-        self.path_dest = path_dest
+        self.path_dest = dir_dest + path_source.split('/')[-1].replace('review', 'prep')
         self.df = None
         self.sentiment_read = None
         self.sentiment_write = None
         self.emotions = None
 
-        create_log(self.start_time)
         self.get_df()
+        create_log(self.start_time, path_source, self.path_dest)
         self.wrap_clean('clean_nltk')
-        self.wrap_clean('clean_spacy', 10**3)
+        self.wrap_clean('clean_spacy')
         self.wrap_sentiment('text', 10_000)
         self.wrap_sentiment('nltk', 10_000)
         self.wrap_sentiment('spacy', 10_000)    
@@ -102,6 +103,8 @@ class Preprocess():
     #############################################################################################################################################
     def get_df(self):
         if not os.path.exists(self.path_source):
+            print('Path ' + self.path_source + ' does not exist.')
+            print('Using ' + self.default_path_source + ' as source...')
             self.df = pd.read_csv(self.default_path_source, index_col=0)
         elif os.path.exists(self.path_dest):
             today = date.today()
@@ -110,6 +113,7 @@ class Preprocess():
             directory = full_path[:-1]
             file = '/' + today + full_path[-1]
             full_path = '/'.join(directory)+file
+            print(self.path_dest, full_path)
             shutil.copyfile(self.path_dest, full_path)
             self.df = pd.read_csv(self.path_source, index_col=0)
         else:
@@ -118,26 +122,18 @@ class Preprocess():
         return 
 
     def find_left_off(self, col, criterion):
-        kept = []
         for i, v in enumerate(self.df[col]):
-            if v != criterion:  
-                kept.append(v)
-            else:
+            if v == criterion:  
                 break
-        return i, kept
+        return i
 
     def save_df(self, include_time=False):
-        path = self.path_dest
-        slash = '/'
-        if 'Windows' in platform.platform() :
-            slash = '\\'
-        location = os.getcwd() + slash + path
-        print_log('...saving dataframe at ' + location)
-        self.df.to_csv(path)
+        print_log('\n...saving dataframe at ' + self.path_dest, '\t')
+        self.df.to_csv(self.path_dest)
         if include_time:
             t2 = time.time()
             convert = time.strftime("%H:%M", time.gmtime(t2-self.t0_class))
-            message = 'Start Time: ' + self.start_time + '\t' + f'Time since Preprocessing began: {convert} (Hrs:Min)'
+            message = 'Start Time: ' + self.start_time + '\t' + f'\nTime since Preprocessing began: {convert} (Hrs:Min)'
             print_log(message)
         return
 
@@ -149,8 +145,9 @@ class Preprocess():
     # Remove stop words and punctuations                                                                                                       #
     ############################################################################################################################################
     @timer_func
-    def wrap_clean(self, new_col, chunk_size=450_000/12):
+    def wrap_clean(self, new_col, chunk_size=500_000/12):
         func = None
+        log_spacing = False
         if new_col == 'clean_nltk':
             func = self.clean_nltk
         elif new_col == 'clean_spacy':
@@ -165,18 +162,23 @@ class Preprocess():
         save_size = chunk_size * num_cpu
         x = list(self.df['review_text'])
         while True:
-            first_miss, group_begin = self.find_left_off(new_col, '')
+            first_miss = self.find_left_off(new_col, '')
             if first_miss >= size-1:
+                if log_spacing:
+                    print_log('\n')
                 break
+            else:
+                log_spacing = True
             depth = min(first_miss + save_size, size)
+            left_over = depth - first_miss
+            chunk_size = math.ceil(left_over / num_cpu) if (chunk_size * num_cpu) > (left_over) else chunk_size
             input = [x[a:a+chunk_size] for a in range(first_miss, depth, chunk_size)]
-            group_end = list(self.df[new_col])[depth:size]
             # Parallization
-            with mp.Pool(num_cpu) as pool:
-                result = pool.map(func, input)
-                result.insert(0, group_begin)
-                result.insert(len(result), group_end)
-                self.df[new_col] = [item for sublist in result for item in sublist]
+            pool = mp.Pool(mp.cpu_count())
+            result = pool.map(func, input)
+            pool.close()
+            result = [item for sublist in result for item in sublist]
+            self.df.loc[first_miss:depth, [new_col]] = result
             self.save_df(True)
         return 
 
@@ -195,7 +197,7 @@ class Preprocess():
             text = ' '.join(text) if len(text) > 0 else L[i]
             out.append(text)
         t2 = time.time()
-        print_log(f'\tFunction \'clean_nltk\' executed in {(t2-t1):.4f}s')
+        print_log(f'\n\tFunction \'clean_nltk\' executed in {(t2-t1):.4f}s')
         return out
     
     def clean_spacy(self, L):
@@ -271,8 +273,8 @@ class Preprocess():
     ## Sentiment and Emotion                                                                                                                    #
     #############################################################################################################################################
     @timer_func
-    def wrap_sentiment(self, read_col, chunk_size=450_000/12):
-        func = None
+    def wrap_sentiment(self, read_col, chunk_size=500_000/12):
+        log_spacing = False
         if 'text' in read_col:
             read_col = 'review_text'
             write_col = 'sentiment_text'
@@ -295,18 +297,23 @@ class Preprocess():
         save_size = chunk_size * num_cpu
         x = list(self.df[read_col])
         while True:
-            first_miss, group_begin = self.find_left_off(write_col, -1)
+            first_miss = self.find_left_off(write_col, -1)
             if first_miss >= size-1:
+                if log_spacing:
+                    print_log('\n')
                 break
+            else:
+                log_spacing = True
             depth = min(first_miss + save_size, size)
+            left_over = depth - first_miss
+            chunk_size = math.ceil(left_over / num_cpu) if (chunk_size * num_cpu) > (left_over) else chunk_size
             input = [x[a:a+chunk_size] for a in range(first_miss, depth, chunk_size)]
-            group_end = list(self.df[write_col])[depth:size]
             # Parallization
-            with mp.Pool(num_cpu) as pool:
-                result = pool.map(self.get_sentiment, input)
-                result.insert(0, group_begin)
-                result.insert(len(result), group_end)
-                self.df[write_col] = [item for sublist in result for item in sublist]
+            pool = mp.Pool(mp.cpu_count())
+            result = pool.map(self.get_sentiment, input)
+            pool.close()
+            result = [item for sublist in result for item in sublist]
+            self.df.loc[first_miss:depth, [write_col]] = result
             self.save_df(True)
         return 
 
@@ -320,14 +327,14 @@ class Preprocess():
             score= (score + 1)/2
             out.append(score)
         t2 = time.time()
-        print_log(f'\tFunction \'get_sentiment\' executed in {(t2-t1):.4f}s')
+        print_log(f'\n\tFunction \'get_sentiment\' executed in {(t2-t1):.4f}s')
         return out
 
     @timer_func
-    def wrap_emotion(self, chunk_size=450_000/12):
-        func = None
+    def wrap_emotion(self, chunk_size=500_000/12):
+        log_spacing = False
         read_col = 'review_text'
-        self.emotions = ('Angry', 'Fear', 'Happy', 'Sad', 'Surprise')
+        self.emotions = ('Happy', 'Angry', 'Surprise', 'Sad', 'Fear')
         for i in self.emotions:
             if i not in self.df:    
                 self.df[i] = -1
@@ -338,51 +345,31 @@ class Preprocess():
         save_size = chunk_size * num_cpu
         x = list(self.df[read_col])
         while True:
-            first_miss, group_begin = self.emotion_left_off()
+            fm = []
+            for e in self.emotions:
+                fm.append(self.find_left_off(e, -1))
+            first_miss = min(fm)
             if first_miss >= size-1:
+                if log_spacing:
+                    print_log('\n')
                 break
+            else:
+                log_spacing = True
             depth = min(first_miss + save_size, size)
+            left_over = depth - first_miss
+            chunk_size = math.ceil(left_over / num_cpu) if (chunk_size * num_cpu) > (left_over) else chunk_size
             input = [x[a:a+chunk_size] for a in range(first_miss, depth, chunk_size)]
-            group_end = self.emotion_group_end(depth)
             # Parallization
             pool = mp.Pool(mp.cpu_count())
             result = pool.map(self.get_emotion, input)
             pool.close()
+            result = [item for sublist in result for item in sublist]
             result = np.transpose(result).tolist()
-            for i, col in enumerate(result):
-                r = col.copy()
-                b = group_begin[i]
-                e = group_end[i]
-                r.insert(0, b)
-                r.insert(len(r), e)
-                self.df[self.emotions[i]] = [item for sublist in r for item in sublist]
+            for index, e in enumerate(self.emotions):
+                self.df.loc[first_miss:depth, [e]] = result[index]
             self.save_df(True)
         return 
-
-    def emotion_group_end(self, depth):
-        out = []
-        for e in self.emotions:
-            temp = []
-            for i, v in enumerate(self.df[e]):
-                if i < depth:
-                    continue
-                else:
-                    temp.append(v)
-            out.append(temp)
-        return out
-
-    def emotion_left_off(self):
-        out = []
-        for e in self.emotions:
-            temp = []
-            for i, v in enumerate(self.df[e]):
-                if v <= -1:
-                    break
-                else:
-                    temp.append(v)
-            out.append(temp)
-        return len(temp), out
-
+        
     def get_emotion(self, L):
         t1 = time.time()
         out = []
@@ -394,7 +381,7 @@ class Preprocess():
                 temp.append(row_emtns[e])
             out.append(temp)
         t2 = time.time()
-        print_log(f'\tFunction \'get_emotion\' executed in {(t2-t1):.4f}s')
+        print_log(f'\n\tFunction \'get_emotion\' executed in {(t2-t1):.4f}s')
         return out
 
 #############################################################################################################################################
@@ -402,8 +389,13 @@ class Preprocess():
 #############################################################################################################################################
 if __name__ == '__main__':
     mp.freeze_support()
-    # Preprocess(path_source=r'./output_1/450K_prep.csv', path_dest=r'./output_2/450K_prep.csv')
-    Preprocess(path_source=r'./output_2/450K_prep.csv', path_dest=r'./output_2/450K_prep.csv')
+    # Preprocess(path_source=r'./output_2/450K_prep.csv', dir_dest=r'./output_2/450K_prep.csv')
+    # Preprocess(path_source=r'./output_1/462K_reviews.csv', dir_dest=r'./output_2/')
+    # Preprocess(path_source=r'./output_2/462K_prep.csv', dir_dest=r'./output_2/')
+    # Preprocess(path_source=r'./output_1/5K_reviews.csv', dir_dest=r'./output_2/')
+    # Preprocess(path_source=r'./output_2/5K_reviews.csv', dir_dest=r'./output_2/')
+    Preprocess(path_source=r'./output_1/500_reviews.csv', dir_dest=r'./output_2/')
+
     
 
 # get data from csv 
