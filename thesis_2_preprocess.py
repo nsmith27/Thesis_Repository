@@ -1,3 +1,15 @@
+#############################################################################################################################################
+## Tasks                                                                                                                                    #
+#############################################################################################################################################
+# get csv data from ./output_1/
+# create new column of cleaned text NLTK
+# create a new column of cleaned text SPACY
+# create column of sentiment from plain text
+# create column of sentiment from clean_NLTK
+# create column of sentiment from clean_SPACY
+# create columns of emotion from plain text
+# save dataframe in ./output_2/
+
 def warn(*args, **kwargs):
     pass
 from distutils.command.build_scripts import first_line_re
@@ -72,15 +84,14 @@ class Preprocess():
     #   {rating (int), review_text (str), clean_nltk (str), clean_spacy (str), 
     #    sentiment (float), sentiment_nltk (float), sentiment_spacy (float), 
     #    angry (float), fear (float), happy (float), sad (float), surpise (float)}
-    
+
     def __init__(self, path_source=r'./output_2/450K_prep.csv', dir_dest=r'./output_2/'):
         self.analyzer = SentimentIntensityAnalyzer()
         self.nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
         self.start_time = datetime.now().strftime("%H:%M")
         self.t0_class = time.time()
-
-        self.default_path_source = r'./output_1/450K_reviews.csv'
-        self.default_path_dest = r'./output_2/450K_prep.csv'
+        # self.default_path_source = r'./output_1/450K_reviews.csv'
+        # self.default_path_dest = r'./output_2/450K_prep.csv'
         self.path_source = path_source
         self.path_dest = dir_dest + path_source.split('/')[-1].replace('review', 'prep')
         self.df = None
@@ -88,14 +99,15 @@ class Preprocess():
         self.sentiment_write = None
         self.emotions = None
 
-        self.get_df()
-        create_log(self.start_time, path_source, self.path_dest)
-        self.wrap_clean('clean_nltk')
-        self.wrap_clean('clean_spacy')
-        self.wrap_sentiment('text', 10_000)
-        self.wrap_sentiment('nltk', 10_000)
-        self.wrap_sentiment('spacy', 10_000)    
-        self.wrap_emotion(1000)
+        if self.get_df():
+            create_log(self.start_time, path_source, self.path_dest)
+            self.wrap_clean('clean_nltk')
+            self.wrap_clean('clean_spacy')
+            self.wrap_sentiment('text', 10_000)
+            self.wrap_sentiment('nltk', 10_000)
+            self.wrap_sentiment('spacy', 10_000)    
+            self.wrap_emotion(1000)
+
         return
 
     #############################################################################################################################################
@@ -103,9 +115,12 @@ class Preprocess():
     #############################################################################################################################################
     def get_df(self):
         if not os.path.exists(self.path_source):
-            print('Path ' + self.path_source + ' does not exist.')
-            print('Using ' + self.default_path_source + ' as source...')
-            self.df = pd.read_csv(self.default_path_source, index_col=0)
+            print('\nPath ' + self.path_source + ' does not exist.')
+            print('Exiting program...\n')
+            return False
+            # print('Path ' + self.path_source + ' does not exist.')
+            # print('Using ' + self.default_path_source + ' as source...')
+            # self.df = pd.read_csv(self.default_path_source, index_col=0)
         elif os.path.exists(self.path_dest):
             today = date.today()
             today = today.strftime("%b_%d_")
@@ -119,7 +134,7 @@ class Preprocess():
         else:
             self.df = pd.read_csv(self.path_source, index_col=0)
         self.df.fillna('', inplace=True)
-        return 
+        return True
 
     def find_left_off(self, col, criterion):
         for i, v in enumerate(self.df[col]):
@@ -396,16 +411,5 @@ if __name__ == '__main__':
     # Preprocess(path_source=r'./output_2/5K_reviews.csv', dir_dest=r'./output_2/')
     Preprocess(path_source=r'./output_1/500_reviews.csv', dir_dest=r'./output_2/')
 
-    
-
-# get data from csv 
-    # path_450K = r'450K_reviews.csv'
-# create new column of cleaned text NLTK
-# creat a new column of cleaned text SPACY
-# create column of sentiment from plain text
-# create column of sentiment from clean_NLTK
-# create column of sentiment from clean_SPACY
-# create columns of emotion from plain text
-# save dataframe as 450K_prep.csv
 
 

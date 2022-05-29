@@ -1,3 +1,38 @@
+#############################################################################################################################################
+## Tasks                                                                                                                                     #
+#############################################################################################################################################
+# get csv data from ./output_3/
+# perform binning
+# convert input to sparse matrix
+# train/test split (70/30)
+# run all sklearn ML algorithms
+# run BERT
+# for each ML algorithm, save prediction scores in file named after the ML algorithm
+# save files to ./output_4/ 
+
+def rating_binner(df, columns):
+    for key in columns:
+        df[key] = df[key].map(columns[key])
+        df[key] = df[key].fillna(0)
+    return df
+
+def reduce_2Abin(df):
+    ordinal = {'rating': {1: 0, 2: 0, 3: 0, 4: 1, 5: 1}}
+    return rating_binner(df, ordinal)
+
+def reduce_2Bbin(df):
+    ordinal = {'rating': {1: 0, 2: 0, 3: 1, 4: 1, 5: 1}}
+    return rating_binner(df, ordinal)
+
+def reduce_3Abin(df):
+    ordinal = {'rating': {1: 0, 2: 0, 3: 1, 4: 2, 5: 2}}
+    return rating_binner(df, ordinal)
+
+def reduce_3Bbin(df):
+    ordinal = {'rating': {1: 0, 2: 1, 3: 1, 4: 1, 5: 2}}
+    return rating_binner(df, ordinal)
+
+
 # import os
 # import re
 # import nltk
