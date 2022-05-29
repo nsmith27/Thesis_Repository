@@ -96,11 +96,14 @@ analyzer = SentimentIntensityAnalyzer()
 # print(e3)
 
 
-a = '''
-I made this exactly as written except for reducing sugar. After two hours in the oven the outside was a hard shell and the inside was sludge. Now I am searching for a new recipe.	made exactly written except reducing sugar two hours oven outside hard shell inside sludge searching new recipe	make exactly write except reduce sugar two hour oven outside hard shell inside sludge search new recipe
-'''.replace('\n', '').split('\t')
-print(len(a))
-for i in a:
-    print((analyzer.polarity_scores(i)['compound']+1)/2, i)
-print(te.get_emotion(a[0]))
+# a = '''
+# I made this exactly as written except for reducing sugar. After two hours in the oven the outside was a hard shell and the inside was sludge. Now I am searching for a new recipe.	made exactly written except reducing sugar two hours oven outside hard shell inside sludge searching new recipe	make exactly write except reduce sugar two hour oven outside hard shell inside sludge search new recipe
+# '''.replace('\n', '').split('\t')
+# print(len(a))
+# for i in a:
+#     print((analyzer.polarity_scores(i)['compound']+1)/2, i)
+# print(te.get_emotion(a[0]))
 
+a = 'review_text	clean_nltk	clean_spacy	sentiment_text	sentiment_nltk	sentiment_spacy	Happy	Angry	Surprise	Sad	Fear'
+a = a.split('\t')
+print(a)

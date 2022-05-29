@@ -3,8 +3,6 @@
 #############################################################################################################################################
 # get csv data from ./output_3/
 # perform binning
-# convert input to sparse matrix
-# train/test split (70/30)
 # run all sklearn ML algorithms
 # run BERT
 # for each ML algorithm, save prediction scores in file named after the ML algorithm

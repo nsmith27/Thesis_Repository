@@ -93,7 +93,7 @@ class Preprocess():
         # self.default_path_source = r'./output_1/450K_reviews.csv'
         # self.default_path_dest = r'./output_2/450K_prep.csv'
         self.path_source = path_source
-        self.path_dest = dir_dest + path_source.split('/')[-1].replace('review', 'prep')
+        self.path_dest = dir_dest + path_source.split('/')[-1].replace('reviews', 'prep')
         self.df = None
         self.sentiment_read = None
         self.sentiment_write = None
