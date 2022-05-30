@@ -11,7 +11,6 @@
 def rating_binner(df, columns):
     for key in columns:
         df[key] = df[key].map(columns[key])
-        df[key] = df[key].fillna(0)
     return df
 
 def reduce_2Abin(df):

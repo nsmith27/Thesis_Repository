@@ -19,6 +19,7 @@ warnings.warn = warn
 
 import re
 import os
+import warnings
 import platform
 import time
 import math
@@ -27,7 +28,6 @@ import numpy as np
 from datetime import datetime, date
 import pandas as pd
 import shutil
-
 
 import spacy
 import text2emotion as te
@@ -101,12 +101,14 @@ class Preprocess():
 
         if self.get_df():
             create_log(self.start_time, path_source, self.path_dest)
-            self.wrap_clean('clean_nltk')
-            self.wrap_clean('clean_spacy')
-            self.wrap_sentiment('text', 10_000)
-            self.wrap_sentiment('nltk', 10_000)
-            self.wrap_sentiment('spacy', 10_000)    
-            self.wrap_emotion(1000)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore")
+                self.wrap_clean('clean_nltk')
+                self.wrap_clean('clean_spacy')
+                self.wrap_sentiment('text', 10_000)
+                self.wrap_sentiment('nltk', 10_000)
+                self.wrap_sentiment('spacy', 10_000)    
+                self.wrap_emotion(1000)
 
         return
 
@@ -407,9 +409,9 @@ if __name__ == '__main__':
     # Preprocess(path_source=r'./output_2/450K_prep.csv', dir_dest=r'./output_2/450K_prep.csv')
     # Preprocess(path_source=r'./output_1/462K_reviews.csv', dir_dest=r'./output_2/')
     # Preprocess(path_source=r'./output_2/462K_prep.csv', dir_dest=r'./output_2/')
-    # Preprocess(path_source=r'./output_1/5K_reviews.csv', dir_dest=r'./output_2/')
+    Preprocess(path_source=r'./output_1/5K_reviews.csv', dir_dest=r'./output_2/')
     # Preprocess(path_source=r'./output_2/5K_reviews.csv', dir_dest=r'./output_2/')
-    Preprocess(path_source=r'./output_1/500_reviews.csv', dir_dest=r'./output_2/')
+    # Preprocess(path_source=r'./output_1/500_reviews.csv', dir_dest=r'./output_2/')
 
 
 
