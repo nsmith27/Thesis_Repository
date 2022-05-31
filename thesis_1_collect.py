@@ -8,7 +8,6 @@
 # ...ex: input n=100 means total of N=500 reviews
 # save dataframe in ./output_1/N_reviews.csv
 
-import chunk
 import os
 import re
 import math
@@ -16,6 +15,7 @@ import time
 import random
 import pandas as pd
 import multiprocessing as mp
+
 
 
 def timer_func(func):

@@ -19,27 +19,22 @@ warnings.warn = warn
 
 import re
 import os
+import shutil
 import warnings
-import platform
 import time
 import math
 import pandas as pd
 import numpy as np
 from datetime import datetime, date
 import pandas as pd
-import shutil
-
 import spacy
 import text2emotion as te
-
 from string import punctuation
 from autocorrect import Speller
-
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
-
 import multiprocessing as mp
 
 
@@ -409,9 +404,9 @@ if __name__ == '__main__':
     # Preprocess(path_source=r'./output_2/450K_prep.csv', dir_dest=r'./output_2/450K_prep.csv')
     # Preprocess(path_source=r'./output_1/462K_reviews.csv', dir_dest=r'./output_2/')
     # Preprocess(path_source=r'./output_2/462K_prep.csv', dir_dest=r'./output_2/')
-    Preprocess(path_source=r'./output_1/5K_reviews.csv', dir_dest=r'./output_2/')
+    # Preprocess(path_source=r'./output_1/5K_reviews.csv', dir_dest=r'./output_2/')
     # Preprocess(path_source=r'./output_2/5K_reviews.csv', dir_dest=r'./output_2/')
-    # Preprocess(path_source=r'./output_1/500_reviews.csv', dir_dest=r'./output_2/')
+    Preprocess(path_source=r'./output_1/500_reviews.csv', dir_dest=r'./output_2/')
 
 
 

@@ -8,100 +8,6 @@
 # for each ML algorithm, save prediction scores in file named after the ML algorithm
 # save files to ./output_4/ 
 
-def rating_binner(df, columns):
-    for key in columns:
-        df[key] = df[key].map(columns[key])
-    return df
-
-def reduce_2Abin(df):
-    ordinal = {'rating': {1: 0, 2: 0, 3: 0, 4: 1, 5: 1}}
-    return rating_binner(df, ordinal)
-
-def reduce_2Bbin(df):
-    ordinal = {'rating': {1: 0, 2: 0, 3: 1, 4: 1, 5: 1}}
-    return rating_binner(df, ordinal)
-
-def reduce_3Abin(df):
-    ordinal = {'rating': {1: 0, 2: 0, 3: 1, 4: 2, 5: 2}}
-    return rating_binner(df, ordinal)
-
-def reduce_3Bbin(df):
-    ordinal = {'rating': {1: 0, 2: 1, 3: 1, 4: 1, 5: 2}}
-    return rating_binner(df, ordinal)
-
-
-# import os
-# import re
-# import nltk
-# import time
-# import math
-# from datetime import date
-# import pandas as pd
-
-# import spacy
-# import scipy
-# import random
-# import string
-# import functools
-# import numpy as np
-# import seaborn as sns
-# from nntplib import NNTP
-# from sklearn import tree
-# # nltk.download('punkt')
-# import text2emotion as te
-# from pydoc import describe
-# # nltk.download('wordnet')
-# from posixpath import split
-# from sklearn import metrics
-# from sklearn.svm import SVC
-# # nltk.download('stopwords')
-# from string import punctuation
-# from sysconfig import get_path
-# import matplotlib.pyplot as plt
-# from autocorrect import Speller
-# import pandas as pd, numpy as np
-# from nltk.corpus import stopwords
-# from sklearn.svm import LinearSVC
-# from typing_extensions import Self
-# from sklearn.decomposition import PCA
-# import matplotlib.patches as mpatches
-# from sklearn.pipeline import Pipeline
-# from nltk.stem import WordNetLemmatizer
-# from nltk.tokenize import word_tokenize
-# from distutils.command.clean import clean
-# from sklearn.feature_selection import RFE
-# from wordcloud import WordCloud, STOPWORDS
-# from sklearn.metrics import accuracy_score
-# from sklearn.naive_bayes import GaussianNB
-# pd.options.mode.chained_assignment = None
-# from sklearn.feature_extraction import text
-# # nltk.download('averaged_perceptron_tagger')
-# from sklearn.naive_bayes import MultinomialNB
-# from sklearn.linear_model import SGDClassifier
-# from sklearn.preprocessing import LabelEncoder
-# from sklearn.metrics import mean_squared_error
-# from sklearn.preprocessing import OneHotEncoder
-# from sklearn.tree import DecisionTreeClassifier
-# from sklearn.datasets import fetch_20newsgroups
-# from sklearn.model_selection import GridSearchCV
-# from sklearn.preprocessing import StandardScaler
-# from sklearn.neural_network import MLPClassifier
-# from sklearn.neighbors import KNeighborsClassifier
-# from sklearn.linear_model import LogisticRegression
-# from sklearn.ensemble import RandomForestClassifier
-# from sklearn.model_selection import train_test_split
-# from sklearn.metrics import accuracy_score, f1_score
-# from sklearn.neighbors import RadiusNeighborsClassifier
-# from sklearn.ensemble import GradientBoostingClassifier
-# from sklearn.feature_extraction.text import TfidfVectorizer
-# from sklearn.feature_extraction.text import CountVectorizer
-# from nltk.sentiment.vader import SentimentIntensityAnalyzer
-# from sklearn.feature_extraction.text import TfidfTransformer
-# from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-# from factor_analyzer import FactorAnalyzer  # pip install factor_analyzer
-# from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-# from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
-# from factor_analyzer.factor_analyzer import calculate_bartlett_sphericity, calculate_kmo
 
 def warn(*args, **kwargs):
     pass
@@ -139,7 +45,6 @@ from sklearn.neural_network import MLPClassifier
 import text2emotion as te
 import multiprocessing as mp
 
-
 #############################################################################################################################################
 ## Helper Functions                                                                                                                         #
 #############################################################################################################################################
@@ -150,95 +55,78 @@ def timer_func(func):
         t1 = time.time()
         result = func(*args, **kwargs)
         t2 = time.time()
-
         print(f'\tFunction {func.__name__!r} executed in {(t2-t1):.4f}s')
         return result
     return wrap_func
 
-def select_columns(df, selected: list):
-    if not selected:
-        return df
-    L_DF = []
-    for s in selected:
-        if type(s) is int:
-            L_DF.append(df.iloc[:, [s] ])
-        elif type(s) is str:
-            L_DF.append(df.loc[:, [s] ])
-        elif type(s) is tuple:
-            A = s[0]
-            B = s[1]
-            if type(A) is str:
-                A = df.columns.get_loc(A)
-            if type(B) is str:
-                B = df.columns.get_loc(B)
-            if A == 0 and B == 0:
-                span = df
-            elif A == 0:
-                span = df.iloc[:, : B ] 
-            elif B == 0:
-                span = df.iloc[:, A : ] 
-            else:
-                span = df.iloc[:, A : B ] 
-            L_DF.append(span)
-        elif type(s) == slice:
-            span = df.iloc[:, s ]
-            L_DF.append(span)
-        else:
-            return df
-    ndf = pd.concat(L_DF, axis=1 )
-    return ndf
-
-def select_rows_by_rating(df, num_selected, selected=[1,2,3,4,5]):
-    # color_or_shape = df.loc[(df['Color'] == 'Green') | (df['Shape'] == 'Rectangle')]
-    # select_price = df.loc[df['Price'] >= 10]
-    L_DF = []
-    for i in selected:
-        temp = df.loc[df['rating'] == i]
-        temp = temp.sample(n= num_selected)
-        L_DF.append(temp)
-    ndf = pd.concat(L_DF, axis=0 )
-    ndf.reset_index(inplace=True)
-    return ndf 
-
 #############################################################################################################################################
-## Sentiment                                                                                                                                #
+## Class                                                                                                                                    #
 #############################################################################################################################################
-
-
-
-
 class TextID:
-    def __init__(self, X, y, outfile):
-        self.methods = { 'Multinomial Naïve Bayes': MultinomialNB(),
+    def __init__(self, dir_source=r'./output_3/', size='500'):
+        self.dir_source = dir_source
+        self.size = size
+        num_cores = mp.cpu_count()
+        self.methods = { 'Multinomial Naïve Bayes': MultinomialNB(n_jobs=num_cores),
                         # 'Guassian Naïve Bayes': GaussianNB(),
                         # 'Quadratic Discriminant Analysis': QuadraticDiscriminantAnalysis(),
-                        'Radius Neighbor': RadiusNeighborsClassifier(radius=10.0),
-                        'KNN': KNeighborsClassifier(n_neighbors=5),
-                        'SVM': SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, random_state=42, max_iter=50, tol=1e-3),
-                        'Linear SVC': LinearSVC(),
-                        'Random Forest Classifier': RandomForestClassifier(n_estimators=200, max_depth=3, random_state=0),
+                        'Radius Neighbor': RadiusNeighborsClassifier(radius=10.0, n_jobs=num_cores),
+                        'KNN': KNeighborsClassifier(n_neighbors=5, n_jobs=num_cores),
+                        'SVM': SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, random_state=42, max_iter=50, tol=1e-3, n_jobs=num_cores),
+                        'Linear SVC': LinearSVC(n_jobs=num_cores),
+                        'Random Forest Classifier': RandomForestClassifier(n_estimators=200, max_depth=3, random_state=0, n_jobs=num_cores),
                         # 'Random Forest Regressor': RandomForestRegressor(random_state=42),
-                        'Logistic Regression': LogisticRegression(random_state=0, solver="lbfgs", multi_class="auto"),
-                        'MLP Classifier': MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(50, 8), random_state=1)
+                        'Logistic Regression': LogisticRegression(random_state=0, solver="lbfgs", multi_class="auto", n_jobs=num_cores),
+                        'MLP Classifier': MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(50, 8), random_state=1, n_jobs=num_cores)
                         } 
-
-        self.X = X
-        self.y = y
         self.X_train = list()
         self.y_train = list()
         self.X_test = list()
         self.y_test = list()
         self.report_path = str()
-
-        self.wrap_split_train_test()
-        self.setup_prediction_store(outfile)
-        self.get_sentiment('review_text', 'sentiment')
-        self.get_sentiment('clean_review_text', 'clean_sentiment')
-        self.get_emotion('review_text')
-        self.get_CV()
-        self.NLTK_train()
+        self.bins = [{'rating': {1: 0, 2: 0, 3: 0, 4: 1, 5: 1}},
+                     {'rating': {1: 0, 2: 0, 3: 1, 4: 1, 5: 1}},
+                     {'rating': {1: 0, 2: 0, 3: 1, 4: 2, 5: 2}},
+                     {'rating': {1: 0, 2: 1, 3: 1, 4: 1, 5: 2}},
+                     None]
+        self.drop_columns = {'Emotion': ['rating', 'clean_nltk', 'clean_spacy'],
+                             'Sentiment' : ['rating', 'clean_nltk', 'clean_spacy', 'Happy', 'Angry', 'Surprise', 'Sad', 'Fear'], 
+                             'Basic' : ['rating', 'clean_nltk', 'clean_spacy', 'Happy', 'Angry', 'Surprise', 'Sad', 'Fear', 'sentiment_nltk', 'sentiment_spacy']}
+        for lib in ['nltk', 'spacy']:
+            for bIndex, bVal in enumerate(self.bins):
+                for d in self.drop_columns:
+                    self.get_df(lib, bVal, d)
+                    for m in self.methods:
+                        self.setup_prediction_store(lib, bIndex)
+                        pass
         return
 
+    def get_df(self, lib, bins, drop_columns):
+        # There are two paths from the following set--one train and one test
+        T = [i for i in os.listdir(self.dir_source) if lib in i and self.size in i]
+        if len([i for i in T if 'test' in i or 'train' in i]) > 2:
+            print('Ambiguous input.  Program exiting...')
+            exit()
+        for t in T:
+            if 'train' in t:
+                self.X_train = pd.read_csv(self.dir_source + t)
+                self.X_train = self.bin_df(self.X_train, bins)
+                self.y_train = self.X_train['rating'].to_numpy()
+                self.X_train = self.X_train.drop(drop_columns, axis=1).to_numpy()
+            elif 'test' in t:
+                self.X_test = pd.read_csv(self.dir_source + t)
+                self.X_test = self.bin_df(self.X_train, bins)
+                self.y_test = self.X_test['rating'].to_numpy()
+                self.X_test = self.X_test.drop(drop_columns, axis=1).to_numpy()
+        return 
+
+    def bin_df(self, df, bins):
+        if bins:
+            for key in bins:
+                df[key] = df[key].map(bins[key])
+        return df
+
+######################################################################################################################################################
     def setup_prediction_store(self, out):
         name = 'Actual_Values'
         y = pd.DataFrame(self.y_test, columns=[name])
@@ -302,143 +190,8 @@ class TextID:
         # print(report)
         return 
 
-    @timer_func
-    def get_sentiment(self, read_col, write_col):
-        analyzer = SentimentIntensityAnalyzer()
-        train = list()
-        test = list()
-        for text in self.X_train[read_col]:
-            sentiment = analyzer.polarity_scores(text)['compound']
-            sentiment = (sentiment + 1)/2
-            train.append(sentiment)
-        for text in self.X_test[read_col]:
-            sentiment = analyzer.polarity_scores(text)['compound']
-            sentiment = (sentiment + 1)/2
-            test.append(sentiment)
-        self.X_train[write_col] = train
-        self.X_test[write_col] = test
-        return 
-
-    @timer_func
-    def get_emotion(self, read_col):
-        emotions = {'Angry': [], 'Fear': [], 'Happy': [], 'Sad': [], 'Surprise': [] }
-        for text in self.X_train[read_col]:
-            x = te.get_emotion(text)
-            for key in emotions:
-                emotions[key].append(x[key])
-        for key in emotions:
-            self.X_train[key] = emotions[key]        
-
-        emotions = {'Angry': [], 'Fear': [], 'Happy': [], 'Sad': [], 'Surprise': [] }
-        for text in self.X_test[read_col]:
-            x = te.get_emotion(text)
-            for key in emotions:
-                emotions[key].append(x[key])
-        for key in emotions:
-            self.X_test[key] = emotions[key]
-        
-        self.save_train_test()
-        return 
-
-    def get_CV(self, tfidf=True, cols=['review_text', 'clean_review_text']):
-        Train = list(self.X_train[cols[0]])
-        Test = list(self.X_test[cols[0]])
-        for k in cols:
-            self.X_train.drop(k, axis=1, inplace=True)
-            self.X_test.drop(k, axis=1, inplace=True)
-        self.X_train.reset_index(drop=True, inplace=True)
-        self.X_test.reset_index(drop=True, inplace=True)
-
-        CV = CountVectorizer(ngram_range=(1,2))
-        Train = CV.fit_transform(Train)
-        Test = CV.transform(Test)
-        TFIDF = TfidfTransformer()
-        Train = TFIDF.fit_transform(Train)
-        Test = TFIDF.transform(Test)
-
-        Train = pd.DataFrame(Train.todense(), columns=CV.get_feature_names())
-        Test = pd.DataFrame(Test.todense(), columns=CV.get_feature_names())
-        self.X_train = pd.concat([self.X_train, Train], axis=1)
-        self.X_test = pd.concat([self.X_test, Test], axis=1)
-        self.save_train_test()
-        return 
-
-    def save_train_test(self):
-        train = pd.DataFrame(self.X_train)
-        test = pd.DataFrame(self.X_test)
-        train.to_csv('zztrain.csv')
-        test.to_csv('zztest.csv')
-
-        return
-
-
-
-
-
-# read preprocessed data 
-    # path = r'450K_prep.csv'
-# get N reviews of each rating
-# select nltk or spacy features 
-# perform binning as specified by input (2a, 2b, 3a, 3b, 5)
-# get count vectorization
-# drop unnecessary columns  
-# train/test split
-# run all ML algorithms 
-
-
-
-
-# from sklearn.svm import LinearSVC
-# from typing_extensions import Self
-# from sklearn.decomposition import PCA
-# import matplotlib.patches as mpatches
-# from sklearn.pipeline import Pipeline
-# from nltk.stem import WordNetLemmatizer
-# from distutils.command.clean import clean
-# from sklearn.feature_selection import RFE
-# from wordcloud import WordCloud, STOPWORDS
-# from sklearn.metrics import accuracy_score
-# from sklearn.naive_bayes import GaussianNB
-# from sklearn.feature_extraction import text
-# from sklearn.naive_bayes import MultinomialNB
-# from sklearn.linear_model import SGDClassifier
-# from sklearn.preprocessing import LabelEncoder
-# from sklearn.metrics import mean_squared_error
-# from sklearn.preprocessing import OneHotEncoder
-# from sklearn.tree import DecisionTreeClassifier
-# from sklearn.datasets import fetch_20newsgroups
-# from sklearn.model_selection import GridSearchCV
-# from sklearn.preprocessing import StandardScaler
-# from sklearn.neural_network import MLPClassifier
-# from sklearn.neighbors import KNeighborsClassifier
-# from sklearn.linear_model import LogisticRegression
-# from sklearn.ensemble import RandomForestClassifier
-# from sklearn.model_selection import train_test_split
-# from sklearn.metrics import accuracy_score, f1_score
-# from sklearn.neighbors import RadiusNeighborsClassifier
-# from sklearn.ensemble import GradientBoostingClassifier
-# from sklearn.feature_extraction.text import TfidfVectorizer
-# from sklearn.feature_extraction.text import CountVectorizer
-# from sklearn.feature_extraction.text import TfidfTransformer
-# from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
-# from factor_analyzer import FactorAnalyzer  # pip install factor_analyzer
-# from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-# import scipy
-# import random
-# import string
-# import functools
-# import numpy as np
-# import seaborn as sns
-# from nntplib import NNTP
-# from sklearn import tree
-
-# from sklearn import metrics
-# from sklearn.svm import SVC
-
-# from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
-# from pydoc import describe
-# from posixpath import split
-# from factor_analyzer.factor_analyzer import calculate_bartlett_sphericity, calculate_kmo
-# pd.options.mode.chained_assignment = None
-# import matplotlib.pyplot as plt
-# from sysconfig import get_path
+#############################################################################################################################################
+## Main                                                                                                                                     #
+#############################################################################################################################################
+if __name__ == '__main__':
+    mp.freeze_support()

@@ -2501,3 +2501,102 @@ Function 'wrap_emotion' running...
 ...saving dataframe at ./output_2/5K_prep.csv	Start Time: 17:47	
 Time since Preprocessing began: 00:05 (Hrs:Min)
 Function 'wrap_emotion' executed in 00:04:46
+================================================================================================================================================================
+May 30, 2022 at 00:10	Source: ./output_1/500_reviews.csv	Destination: ./output_2/500_prep.csv
+================================================================================================================================================================
+Function 'wrap_clean' running...	
+	Function 'clean_nltk' executed in 0.0360s
+	Function 'clean_nltk' executed in 0.0356s
+	Function 'clean_nltk' executed in 0.0370s
+	Function 'clean_nltk' executed in 0.0390s
+	Function 'clean_nltk' executed in 0.0410s
+	Function 'clean_nltk' executed in 0.0452s
+	Function 'clean_nltk' executed in 0.0440s
+	Function 'clean_nltk' executed in 0.0400s
+	Function 'clean_nltk' executed in 0.0430s
+	Function 'clean_nltk' executed in 0.0396s
+	Function 'clean_nltk' executed in 0.0370s
+	Function 'clean_nltk' executed in 0.0330s
+...saving dataframe at ./output_2/500_prep.csv	Start Time: 00:10	
+Time since Preprocessing began: 00:00 (Hrs:Min)
+Function 'wrap_clean' executed in 00:00:06
+Function 'wrap_clean' running...	
+	Function 'clean_spacy' executed in 0.2260s
+	Function 'clean_spacy' executed in 0.2149s
+	Function 'clean_spacy' executed in 0.2387s
+	Function 'clean_spacy' executed in 0.3215s
+	Function 'clean_spacy' executed in 0.3160s
+	Function 'clean_spacy' executed in 0.3604s
+	Function 'clean_spacy' executed in 0.2972s
+	Function 'clean_spacy' executed in 0.3195s
+	Function 'clean_spacy' executed in 0.2991s
+	Function 'clean_spacy' executed in 0.2521s
+	Function 'clean_spacy' executed in 0.2589s
+	Function 'clean_spacy' executed in 0.2150s
+...saving dataframe at ./output_2/500_prep.csv	Start Time: 00:10	
+Time since Preprocessing began: 00:00 (Hrs:Min)
+Function 'wrap_clean' executed in 00:00:07
+Function 'wrap_sentiment' running...	
+	Function 'get_sentiment' executed in 0.0130s
+	Function 'get_sentiment' executed in 0.0100s
+	Function 'get_sentiment' executed in 0.0120s
+	Function 'get_sentiment' executed in 0.0160s
+	Function 'get_sentiment' executed in 0.0160s
+	Function 'get_sentiment' executed in 0.0190s
+	Function 'get_sentiment' executed in 0.0160s
+	Function 'get_sentiment' executed in 0.0170s
+	Function 'get_sentiment' executed in 0.0170s
+	Function 'get_sentiment' executed in 0.0130s
+	Function 'get_sentiment' executed in 0.0140s
+	Function 'get_sentiment' executed in 0.0129s
+...saving dataframe at ./output_2/500_prep.csv	Start Time: 00:10	
+Time since Preprocessing began: 00:00 (Hrs:Min)
+Function 'wrap_sentiment' executed in 00:00:06
+Function 'wrap_sentiment' running...	
+	Function 'get_sentiment' executed in 0.0060s
+	Function 'get_sentiment' executed in 0.0060s
+	Function 'get_sentiment' executed in 0.0070s
+	Function 'get_sentiment' executed in 0.0099s
+	Function 'get_sentiment' executed in 0.0109s
+	Function 'get_sentiment' executed in 0.0120s
+	Function 'get_sentiment' executed in 0.0080s
+	Function 'get_sentiment' executed in 0.0100s
+	Function 'get_sentiment' executed in 0.0090s
+	Function 'get_sentiment' executed in 0.0082s
+	Function 'get_sentiment' executed in 0.0100s
+	Function 'get_sentiment' executed in 0.0080s
+...saving dataframe at ./output_2/500_prep.csv	Start Time: 00:10	
+Time since Preprocessing began: 00:00 (Hrs:Min)
+Function 'wrap_sentiment' executed in 00:00:06
+Function 'wrap_sentiment' running...	
+	Function 'get_sentiment' executed in 0.0060s
+	Function 'get_sentiment' executed in 0.0090s
+	Function 'get_sentiment' executed in 0.0070s
+	Function 'get_sentiment' executed in 0.0090s
+	Function 'get_sentiment' executed in 0.0090s
+	Function 'get_sentiment' executed in 0.0120s
+	Function 'get_sentiment' executed in 0.0080s
+	Function 'get_sentiment' executed in 0.0100s
+	Function 'get_sentiment' executed in 0.0100s
+	Function 'get_sentiment' executed in 0.0080s
+	Function 'get_sentiment' executed in 0.0080s
+	Function 'get_sentiment' executed in 0.0076s
+...saving dataframe at ./output_2/500_prep.csv	Start Time: 00:10	
+Time since Preprocessing began: 00:00 (Hrs:Min)
+Function 'wrap_sentiment' executed in 00:00:06
+Function 'wrap_emotion' running...	
+	Function 'get_emotion' executed in 16.6207s
+	Function 'get_emotion' executed in 19.4926s
+	Function 'get_emotion' executed in 24.4307s
+	Function 'get_emotion' executed in 24.9150s
+	Function 'get_emotion' executed in 26.0380s
+	Function 'get_emotion' executed in 28.3810s
+	Function 'get_emotion' executed in 29.2517s
+	Function 'get_emotion' executed in 29.8672s
+	Function 'get_emotion' executed in 28.2000s
+	Function 'get_emotion' executed in 29.8705s
+	Function 'get_emotion' executed in 29.8436s
+	Function 'get_emotion' executed in 34.2189s
+...saving dataframe at ./output_2/500_prep.csv	Start Time: 00:10	
+Time since Preprocessing began: 00:01 (Hrs:Min)
+Function 'wrap_emotion' executed in 00:00:39

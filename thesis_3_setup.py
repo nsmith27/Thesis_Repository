@@ -8,15 +8,14 @@
 # train/test split (70/30)
 # save the 4 dataframes in ./output_3/
 
-
 import os
 import time
 import threading
 import warnings
-import numpy as np 
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
+
 
 
 def timer_func(func):
@@ -29,6 +28,7 @@ def timer_func(func):
         print(f'Function {func.__name__!r} executed in {(t2-t1):.4f}s')
         return result
     return wrap_func
+
 #############################################################################################################################################
 ## Class                                                                                                                                    #
 #############################################################################################################################################
@@ -166,6 +166,6 @@ class Setup():
 ## Main                                                                                                                                     #
 #############################################################################################################################################
 if __name__ == '__main__':
-    # Setup(path_source=r'./output_2/500_prep.csv', dir_dest=r'./output_3/')
-    Setup(path_source=r'./output_2/5K_prep.csv', dir_dest=r'./output_3/')
+    Setup(path_source=r'./output_2/500_prep.csv', dir_dest=r'./output_3/')
+    # Setup(path_source=r'./output_2/5K_prep.csv', dir_dest=r'./output_3/')
     
