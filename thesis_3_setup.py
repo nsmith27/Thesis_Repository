@@ -43,7 +43,7 @@ class Setup():
     # After  -- DF_NLTK.columns or DF_SPACY.columns 
     #   {rating (int), clean_nltk (str), sentiment (float), sentiment_nltk (float), 
     #    angry (float), fear (float), happy (float), sad (float), surpise (float),
-    #    [bag of words columns] (0 or 1)}
+    #    [bag of words columns] (0 to 1)}
 
     def __init__(self, path_source=r'./output_2/450K_prep.csv', dir_dest=r'./output_3/'):
         t1 = time.time()
