@@ -18,6 +18,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 
+#############################################################################################################################################
+## Timing Function                                                                                                                          #
+#############################################################################################################################################
 def timer_func(func):
     # This function shows the execution time of 
     # the function object passed

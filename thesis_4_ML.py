@@ -17,6 +17,7 @@ warnings.warn = warn
 import os
 import re
 import time
+from datetime import datetime, date
 from posixpath import split
 import scipy
 import numpy as np
@@ -46,44 +47,70 @@ import text2emotion as te
 import multiprocessing as mp
 
 #############################################################################################################################################
-## Helper Functions                                                                                                                         #
+## Logging Functions                                                                                                                        #
 #############################################################################################################################################
 def timer_func(func):
     # This function shows the execution time of 
     # the function object passed
     def wrap_func(*args, **kwargs):
+        print_log(f'\nFunction {func.__name__!r} running...', '\t')
         t1 = time.time()
         result = func(*args, **kwargs)
         t2 = time.time()
-        print(f'\tFunction {func.__name__!r} executed in {(t2-t1):.4f}s')
+        convert = time.strftime("%H:%M:%S", time.gmtime(t2-t1))
+        print_log(f'Function {func.__name__!r} executed in {convert}')
         return result
     return wrap_func
+
+print_log_path = './output_4/log.txt'
+def create_log(start_time, source_file, dest_file):
+    with open(print_log_path, 'a+') as file:
+        border = '\n' + '='*160
+        log_date = date.today().strftime("%B %d, %Y")
+        log_date = border + ('\n' + log_date + ' at ' + start_time) 
+        source = '\tSource: ' + source_file
+        dest = '\tDestination: ' + dest_file + border
+        file.write(log_date + source + dest)
+    return
+def print_log(S, ending=''):
+    print(S, end=ending)
+    S = S + ending
+    with open(print_log_path, 'a+') as file:
+        file.write(S)
+    return 
 
 #############################################################################################################################################
 ## Class                                                                                                                                    #
 #############################################################################################################################################
-class TextID:
+class ML():
     def __init__(self, dir_source=r'./output_3/', size='500'):
+        self.start_time = datetime.now().strftime("%H:%M")
         self.dir_source = dir_source
+        self.dir_dest = r'./output_4/'
         self.size = size
         num_cores = mp.cpu_count()
-        self.methods = { 'Multinomial Naïve Bayes': MultinomialNB(n_jobs=num_cores),
-                        # 'Guassian Naïve Bayes': GaussianNB(),
-                        # 'Quadratic Discriminant Analysis': QuadraticDiscriminantAnalysis(),
-                        'Radius Neighbor': RadiusNeighborsClassifier(radius=10.0, n_jobs=num_cores),
-                        'KNN': KNeighborsClassifier(n_neighbors=5, n_jobs=num_cores),
-                        'SVM': SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, random_state=42, max_iter=50, tol=1e-3, n_jobs=num_cores),
-                        'Linear SVC': LinearSVC(n_jobs=num_cores),
-                        'Random Forest Classifier': RandomForestClassifier(n_estimators=200, max_depth=3, random_state=0, n_jobs=num_cores),
-                        # 'Random Forest Regressor': RandomForestRegressor(random_state=42),
-                        'Logistic Regression': LogisticRegression(random_state=0, solver="lbfgs", multi_class="auto", n_jobs=num_cores),
-                        'MLP Classifier': MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(50, 8), random_state=1, n_jobs=num_cores)
-                        } 
+        # self.methods = { 'Multinomial Naïve Bayes': MultinomialNB(n_jobs=num_cores),
+        #                 # 'Guassian Naïve Bayes': GaussianNB(),
+        #                 # 'Quadratic Discriminant Analysis': QuadraticDiscriminantAnalysis(),
+        #                 'Radius Neighbor': RadiusNeighborsClassifier(radius=10.0, n_jobs=num_cores),
+        #                 'KNN': KNeighborsClassifier(n_neighbors=5, n_jobs=num_cores),
+        #                 'SVM': SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, random_state=42, max_iter=50, tol=1e-3, n_jobs=num_cores),
+        #                 'Linear SVC': LinearSVC(n_jobs=num_cores),
+        #                 'Random Forest Classifier': RandomForestClassifier(n_estimators=200, max_depth=3, random_state=0, n_jobs=num_cores),
+        #                 # 'Random Forest Regressor': RandomForestRegressor(random_state=42),
+        #                 'Logistic Regression': LogisticRegression(random_state=0, solver="lbfgs", multi_class="auto", n_jobs=num_cores),
+        #                 'MLP Classifier': MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(50, 8), random_state=1, n_jobs=num_cores)
+        #                 } 
+        self.all_current_train_columns = None
+        self.all_current_test_columns = None
         self.X_train = list()
         self.y_train = list()
         self.X_test = list()
         self.y_test = list()
         self.report_path = str()
+
+        create_log(self.start_time, self.dir_source, self.dir_dest)
+        
         self.bins = [{'rating': {1: 0, 2: 0, 3: 0, 4: 1, 5: 1}},
                      {'rating': {1: 0, 2: 0, 3: 1, 4: 1, 5: 1}},
                      {'rating': {1: 0, 2: 0, 3: 1, 4: 2, 5: 2}},
@@ -95,10 +122,12 @@ class TextID:
         for lib in ['nltk', 'spacy']:
             for bIndex, bVal in enumerate(self.bins):
                 for d in self.drop_columns:
-                    self.get_df(lib, bVal, d)
-                    for m in self.methods:
-                        self.setup_prediction_store(lib, bIndex)
-                        pass
+                    self.get_df(lib, bVal, self.drop_columns[d])
+                    self.save_Xy(lib, bIndex, d)
+                    
+                    # for m in self.methods:
+                    #     self.setup_prediction_store(lib, bIndex)
+                    #     pass
         return
 
     def get_df(self, lib, bins, drop_columns):
@@ -109,15 +138,19 @@ class TextID:
             exit()
         for t in T:
             if 'train' in t:
-                self.X_train = pd.read_csv(self.dir_source + t)
+                self.X_train = pd.read_csv(self.dir_source + t, index_col=[0])
                 self.X_train = self.bin_df(self.X_train, bins)
                 self.y_train = self.X_train['rating'].to_numpy()
-                self.X_train = self.X_train.drop(drop_columns, axis=1).to_numpy()
+                self.X_train = self.X_train.drop(drop_columns, axis=1, errors='ignore')
+                self.all_current_train_columns = list(self.X_train.columns.insert(0, 'rating'))
+                self.X_train = self.X_train.to_numpy()
             elif 'test' in t:
-                self.X_test = pd.read_csv(self.dir_source + t)
-                self.X_test = self.bin_df(self.X_train, bins)
+                self.X_test = pd.read_csv(self.dir_source + t, index_col=[0])
+                self.X_test = self.bin_df(self.X_test, bins)
                 self.y_test = self.X_test['rating'].to_numpy()
-                self.X_test = self.X_test.drop(drop_columns, axis=1).to_numpy()
+                self.X_test = self.X_test.drop(drop_columns, axis=1, errors='ignore')
+                self.all_current_test_columns = list(self.X_test.columns.insert(0, 'rating'))
+                self.X_test = self.X_test.to_numpy()        
         return 
 
     def bin_df(self, df, bins):
@@ -125,6 +158,20 @@ class TextID:
             for key in bins:
                 df[key] = df[key].map(bins[key])
         return df
+
+    @timer_func
+    def save_Xy(self, lib, bin, drop_columns):
+        B = {0: '2A', 1: '2B', 2: '3A', 3: '3B', 4: '5'}
+        name = 'intermediate/' + lib + '_' + B[bin] + '_' + drop_columns
+        all_data = np.insert(self.X_train, 0, self.y_train, axis=1)
+        all_data = pd.DataFrame(all_data, columns = self.all_current_train_columns)
+        all_data.to_csv(self.dir_dest + name + '_X_train.csv', index=False)
+
+        all_data = np.insert(self.X_test, 0, self.y_test, axis=1)
+        all_data = pd.DataFrame(all_data, columns = self.all_current_test_columns)
+        all_data.to_csv(self.dir_dest + name + '_X_test.csv', index=False)
+
+        return
 
 ######################################################################################################################################################
     def setup_prediction_store(self, out):
@@ -141,13 +188,6 @@ class TextID:
         ndf.to_csv(self.report_path)
         return
 
-    def wrap_split_train_test(self):
-        self.X_train, self.X_test, y_train, y_test = train_test_split(self.X, self.y, test_size = 0.3, random_state=42)
-        self.y_train = list(y_train)
-        self.y_test = list(y_test)
-        del self.X
-        del self.y
-        return
 
     def NLTK_train(self):
         # print('Training... ')
@@ -195,3 +235,5 @@ class TextID:
 #############################################################################################################################################
 if __name__ == '__main__':
     mp.freeze_support()
+    ML(size='500')
+    # ML(size='5K')
