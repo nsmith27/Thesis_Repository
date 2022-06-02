@@ -225,9 +225,23 @@ df = pd.read_csv(r'./output_3/500_nltk_test.csv')
 
 
 # df.drop(["Difficulty_Score", "Type"], axis = 1, inplace = True)
-bin = {'a': 1, 'b': 2}
+# bin = {'a': 1, 'b': 2}
 
-if bin:
-    print(1)
-else:
-    print(2)
+# if bin:
+#     print(1)
+# else:
+#     print(2)
+
+
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+
+# Create and generate a word cloud image:
+text = '''
+'''
+wordcloud = WordCloud().generate(text)
+
+# Display the generated image:
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis("off")
+plt.show()

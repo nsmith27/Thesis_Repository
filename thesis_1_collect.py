@@ -15,6 +15,8 @@ import time
 import random
 import pandas as pd
 import multiprocessing as mp
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
 
 
 #############################################################################################################################################
@@ -39,51 +41,62 @@ class Collect():
     # Before -- reviews in text files
     # After  -- DF.columns {rating (int), review_text (str)}
 
-    def __init__(self, dir_source=r'./reviews/', dir_dest=r'./output_1/', count=-1):
+    def __init__(self, dir_source=r'./reviews/', dir_dest=r'./output_1/', count=-1, save=True):
         if count >= 0:
             dir_source = r'./output_1/all_valid_reviews.csv'
         if not os.path.exists(dir_source):
             return
+        self.save = save
         self.dir_source = dir_source
         self.review_paths = None
         self.out_dir = dir_dest
         self.out_file = r'reviews.csv'
         self.num_each = count
-
+        self.D = {'1':[], '2':[], '3':[], '4':[], '5':[]}
+       
         self.convert_store_raw_data()
+       
         return
 
     @timer_func
     def convert_store_raw_data(self): 
-        D = {'1':[], '2':[], '3':[], '4':[], '5':[]}
-        stored_path = self.dir_source
-        if self.num_each >= 0 and os.path.exists(stored_path):
-            df = pd.read_csv(stored_path)
-            df.fillna('', inplace=True)
-            for i in D:
-                D[i] = df.query('rating == ' + str(i))['review_text'].astype('string').tolist()
-                D[i] = ['\"' + k.replace('\"', "\'") + '\"'for k in D[i]]
+        if self.num_each >= 0 and os.path.exists(self.dir_source):
+            self.read_csv_reviews(self.dir_source)
         else: 
-            self.get_paths()
-            # Parallization setup
-            num_cpu = mp.cpu_count()
-            size = len(self.review_paths)
-            chunk_size = math.ceil(size/num_cpu)
-            input = [self.review_paths[i:i+chunk_size] for i in range(0, len(self.review_paths), chunk_size)]
-            # Parallization start
-            pool = mp.Pool(num_cpu)
-            result = pool.map(self.parse_review, input)
-            pool.close()
-            # Parallization end
-            list_tup = [item for sublist in result for item in sublist]
-            for t in list_tup:
-                D[t[0]].append(t[1])
-        self.check_alter_size(D)
+            self.read_parallel()
+        self.check_alter_size()
         if self.num_each >= 0:
-            for key in D.keys():
-                kept = random.sample(D[key], self.num_each)
-                D[key] = kept
-        self.save_to_csv(D)
+            for key in self.D.keys():
+                kept = random.sample(self.D[key], self.num_each)
+                self.D[key] = kept
+        if self.save:
+            self.save_to_csv()
+        return 
+
+    def read_csv_reviews(self, stored_path):
+        df = pd.read_csv(stored_path)
+        df.fillna('', inplace=True)
+        for i in self.D:
+            self.D[i] = df.query('rating == ' + str(i))['review_text'].astype('string').tolist()
+            self.D[i] = ['\"' + k.replace('\"', "\'") + '\"'for k in self.D[i]]
+        return 
+
+    def read_parallel(self):
+        self.get_paths()
+        # Parallization setup
+        num_cpu = mp.cpu_count()
+        size = len(self.review_paths)
+        chunk_size = math.ceil(size/num_cpu)
+        input = [self.review_paths[i:i+chunk_size] for i in range(0, len(self.review_paths), chunk_size)]
+        # Parallization start
+        pool = mp.Pool(num_cpu)
+        result = pool.map(self.parse_review, input)
+        pool.close()
+        # Parallization end
+        list_tup = [item for sublist in result for item in sublist]
+        for t in list_tup:
+            self.D[t[0]].append(t[1])
+
         return 
 
     def get_paths(self):
@@ -119,18 +132,18 @@ class Collect():
             result = file.read()
         return result 
 
-    def check_alter_size(self, D):
-        x = min([len(D[key]) for key in D])
+    def check_alter_size(self):
+        x = min([len(self.D[key]) for key in self.D])
         if x < self.num_each:
             self.num_each = x
             print('Input number too large.\nValue was changed to ' + str(x))
         return 
 
-    def save_to_csv(self, D):
+    def save_to_csv(self):
         name = ''
         if self.num_each < 0:
             name = 'all_' + self.out_file
-        elif self.num_each < 1000:
+        elif self.num_each*5 < 1000:
             name = str(self.num_each*5) + '_' + self.out_file
         else:
             name = str(int(self.num_each/200)) + 'K_' + self.out_file
@@ -138,10 +151,21 @@ class Collect():
         with open(path, 'w', encoding='utf-8') as file:
             columns =  'rating,review_text\n'
             file.write(columns)
-            for n in D:
-                for k in range(len(D[n])):
-                    input = n + ',' + D[n][k] + '\n'
+            for n in self.D:
+                for k in range(len(self.D[n])):
+                    input = n + ',' + self.D[n][k] + '\n'
                     file.write(input)
+        return
+
+    def generate_wordcloud(self):
+        self.read_csv_reviews(r'./output_1/all_valid_reviews.csv')
+        for key in self.D:
+            text = '\n'.join(self.D[key])
+            wordcloud = WordCloud().generate(text)
+            plt.imshow(wordcloud, interpolation='bilinear')
+            plt.axis("off")
+            plt.show()
+
         return
 
 
@@ -151,5 +175,7 @@ class Collect():
 if __name__ == '__main__':
     mp.freeze_support()
     # Collect(dir_source=r'C:/Users/natha/Desktop/2022 Thesis/Thesis Code/reviews/' , count=100)
-    Collect(count=100)
+    # Collect() 
+    # explore = Collect(count=400, save=False)
+    # explore.generate_wordcloud()
 
