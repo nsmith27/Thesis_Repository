@@ -92,14 +92,14 @@ class Setup():
         name_test = '_' + name + '_test'
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore")
-            # self.CV_thread(name_train)
-            # self.CV_thread(name_test)
-            t1 = threading.Thread(target=self.CV_thread, args=(name_train, ))
-            t2 = threading.Thread(target=self.CV_thread, args=(name_test, ))
-            t1.start()
-            t2.start()
-            t1.join()
-            t2.join()
+            self.CV_thread(name_train)
+            self.CV_thread(name_test)
+            # t1 = threading.Thread(target=self.CV_thread, args=(name_train, ))
+            # t2 = threading.Thread(target=self.CV_thread, args=(name_test, ))
+            # t1.start()
+            # t2.start()
+            # t1.join()
+            # t2.join()
         return 
 
     def CV_thread(self, name):
@@ -169,6 +169,7 @@ class Setup():
 ## Main                                                                                                                                     #
 #############################################################################################################################################
 if __name__ == '__main__':
-    Setup(path_source=r'./output_2/500_prep.csv', dir_dest=r'./output_3/')
+    Setup(path_source=r'./output_2/450K_prep.csv', dir_dest=r'./output_3/')
+    # Setup(path_source=r'./output_2/500_prep.csv', dir_dest=r'./output_3/')
     # Setup(path_source=r'./output_2/5K_prep.csv', dir_dest=r'./output_3/')
     

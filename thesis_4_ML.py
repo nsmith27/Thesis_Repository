@@ -101,6 +101,8 @@ class ML():
         #                 'Logistic Regression': LogisticRegression(random_state=0, solver="lbfgs", multi_class="auto", n_jobs=num_cores),
         #                 'MLP Classifier': MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(50, 8), random_state=1, n_jobs=num_cores)
         #                 } 
+#                         'SVM with stochastic gradient dissent'
+
         self.all_current_train_columns = None
         self.all_current_test_columns = None
         self.X_train = list()

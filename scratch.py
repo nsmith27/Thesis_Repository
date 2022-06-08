@@ -195,17 +195,17 @@
 # for i in x:
 #     i(2)
     
-import os
-from re import A
-import pandas as pd
-import numpy as np
+# import os
+# from re import A
+# import pandas as pd
+# import numpy as np
 
 # size = '5'
 # T = [i for i in os.listdir(r'./output_3') if 'nltk' in i and size in i]
 
 # print(T)
 
-df = pd.read_csv(r'./output_3/500_nltk_test.csv')
+# df = pd.read_csv(r'./output_3/500_nltk_test.csv')
 # print(df.columns)
 # df = df.iloc[:, 1: ].to_numpy()
 # df = df['rating'].tolist()
@@ -233,15 +233,37 @@ df = pd.read_csv(r'./output_3/500_nltk_test.csv')
 #     print(2)
 
 
-from wordcloud import WordCloud
-import matplotlib.pyplot as plt
+# from wordcloud import WordCloud
+# import matplotlib.pyplot as plt
 
-# Create and generate a word cloud image:
-text = '''
+# # Create and generate a word cloud image:
+# text = '''
+# '''
+# wordcloud = WordCloud().generate(text)
+
+# # Display the generated image:
+# plt.imshow(wordcloud, interpolation='bilinear')
+# plt.axis("off")
+# plt.show()
+
+# import os
+# from re import A
+# import pandas as pd
+# import numpy as np
+
+# # ['rating', 'review_text', 'spell_clean']
+# path = r'./output_1/words_spell_clean.csv'
+# df = pd.read_csv(path)
+# ndf = df.iloc[:, : ] 
+# df.to_csv(path, index=False)        
+
+
+
+a = '''askdfjhak
+  jo      ask; dfj h house   this   a;kbhitaskdfjah
+a;skdjfkal
+as;kdfj;ABDAY_4
 '''
-wordcloud = WordCloud().generate(text)
 
-# Display the generated image:
-plt.imshow(wordcloud, interpolation='bilinear')
-plt.axis("off")
-plt.show()
+a = a.split()
+print(a)
