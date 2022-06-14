@@ -96,6 +96,7 @@ class Preprocess():
         self.sentiment_read = None
         self.sentiment_write = None
         self.emotions = None
+        self.set_stop_words = self.set_stop_words()
 
         if self.get_df():
             create_log(self.start_time, path_source, self.path_dest)
@@ -262,6 +263,9 @@ class Preprocess():
         return text
 
     def remove_stop(self, text):
+        return [i for i in text if i not in self.stop_words]
+    
+    def set_stopwords(self):
         stop_words = stopwords.words("english")
         keep = '''
         no
@@ -280,9 +284,8 @@ class Preprocess():
         for i in keep:
             if i in stop_words:
                 stop_words.remove(i)
-
-        return [i for i in text if i not in stop_words]
-
+        self.set_stop_words = stop_words
+        return 
 
     #############################################################################################################################################
     ## Sentiment and Emotion                                                                                                                    #

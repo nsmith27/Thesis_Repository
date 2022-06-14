@@ -170,16 +170,18 @@ class Collect():
     ## Exploratory Functionality                                                                                                               #
     ############################################################################################################################################
     @timer_func
-    def generate_word_stats(self, col=None, WC=False):
+    def generate_word_stats(self, col=None, WC=False, FT=True):
+        vecs = []
         if col:
             path = './output_1/words_spell_clean.csv'
             self.generate_clean_spellcheck(path)
             self.read_csv_reviews(path, col)
-            for key in self.D:
-                text = '\n'.join(self.D[key])
-                text = re.sub('[^\s0-9a-zA-Z]+', '', text).split()
-                text = FreqDist(text)
-                text.plot(50,title='Frequency distribution for 30 most common tokens in ' + str(key) + '-star reviews.')
+            if FT:
+                for key in self.D:
+                    text = '\n'.join(self.D[key])
+                    text = re.sub('[^\s0-9a-zA-Z]+', '', text).split()
+                    text = FreqDist(text)
+                    text.plot(50,title='Frequency distribution for 30 most common tokens in ' + str(key) + '-star reviews.')
         else:
             path = r'./output_1/all_valid_reviews.csv'
             self.read_csv_reviews(path)
@@ -238,6 +240,56 @@ class Collect():
 
     def clean_nltk(self, L):
         out = []
+        stop_words = stopwords.words("english")
+        more_words = '''
+        like
+        Im
+        I
+        it
+        its
+        would
+        could
+        also
+        no
+        not
+        did
+        didn
+        didnt
+        don
+        dont
+        dont
+        won
+        wont
+        wont
+        shouldn
+        shouldnt
+        too
+        recipe
+        recipes
+        make
+        made
+        making
+        think
+        thought
+        use
+        used
+        much
+        even
+        still
+        followed
+        im
+        one
+        put
+        time
+        next
+        taste
+        put
+        thing
+        way
+        good
+
+        '''.split('\n')[1:-1]
+        stop_words = set(stop_words) | set([i.strip() for i in more_words])
         for i in range(len(L)):
             text = L[i]
             text = re.sub('[^\s0-9a-zA-Z]+', '', text)
@@ -245,38 +297,13 @@ class Collect():
             text = word_tokenize(text)
             text = [t.lower() for t in text] 
             # text = self.spell_correct(text)
-            text = self.remove_stop(text)
-            text = ' '.join(text) if len(text) > 0 else L[i]
+            text = self.remove_stop(text, stop_words)
+            text = ' '.join(text) if len(text) > 0 else '__empty__'
             out.append(text)
         return out
 
-    def remove_stop(self, text):
-        stop_words = stopwords.words("english")
-        more_words = '''
-        I'm
-        I
-        it
-        it's
-        would
-        could
-        also
-        no
-        not
-        did
-        don
-        dont
-        don't
-        won
-        wont
-        won't
-        recipie
-        shouldn
-        shouldnt
-        shouldn't
-        too
-        '''.split('\n')[1:-1]
-        stop_words = stop_words + more_words
-        return [i for i in text if i.lower() not in stop_words]
+    def remove_stop(self, text, stop_words):
+        return [i for i in text if i not in stop_words]
 
     def replace_web_reference(self, text):
         replacement = '-ref_website-'
@@ -296,6 +323,54 @@ class Collect():
 
         return text
 
+    def adjective_word_cloud(self):
+        from textblob import TextBlob
+        path = r'./output_1/5K_reviews.csv'
+        self.read_csv_reviews(path)
+        for key in self.D:
+            text = '\n'.join(self.D[key])
+            blob = TextBlob(text)
+            text = '\n'.join([ word for (word,tag) in blob.tags if tag == "JJ"])
+            wordcloud = WordCloud(colormap='hsv').generate(text)
+            plt.imshow(wordcloud, interpolation='bilinear')
+            plt.axis("off")
+            plt.show()
+
+        return
+
+    def similarity_test(self, N=30, path=r'./output_1/words_spell_clean.csv', col='spell_clean'):
+        import math
+        import re
+        from collections import Counter
+        self.read_csv_reviews(path, col)
+
+        WORD = re.compile(r"\w+")
+        def text_to_vector(text):
+            words = WORD.findall(text)
+            return dict(Counter(words).most_common(N))
+        def get_cosine(vec1, vec2):
+            intersection = set(vec1.keys()) & set(vec2.keys())
+            numerator = sum([vec1[x] * vec2[x] for x in intersection])
+            sum1 = sum([vec1[x] ** 2 for x in list(vec1.keys())])
+            sum2 = sum([vec2[x] ** 2 for x in list(vec2.keys())])
+            denominator = math.sqrt(sum1) * math.sqrt(sum2)
+            if not denominator:
+                return 0.0
+            else:
+                return float(numerator) / denominator
+
+        vec = []
+        for key in self.D:
+            x = '\n'.join(self.D[key])
+            vec.append(text_to_vector(x))
+
+        for i in range(4):
+            for k in range(i+1, 5):
+                vi = vec[i]
+                vk = vec[k]
+                cosine = get_cosine(vi, vk)
+                print('(' + str(i+1) + ',' + str(k+1) + ')\t' + str(cosine))
+        return
 
 ############################################################################################################################################
 ## Main                                                                                                                                    #
@@ -307,5 +382,11 @@ if __name__ == '__main__':
     # explore = Collect(count=400, save=False)
     # explore.generate_clean_spellcheck()
     explore = Collect(save=False) 
-    explore.generate_word_stats(col='spell_clean', WC=True)
+    # explore.generate_word_stats(col='spell_clean', WC=False)
+    # explore.adjective_word_cloud()
+    T = [10, 20, 30, 40, 50, 100]
+    for i in T:
+        print(i)
+        explore.similarity_test(N=i)
+        print()
 
